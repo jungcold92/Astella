@@ -219,7 +219,8 @@ input::placeholder{color:#5b5470}
   border:1px solid #07060c;
   box-shadow:inset 0 0 0 2px #5c4620,inset 0 0 0 3px rgba(255,236,180,.09),
              inset 0 0 60px rgba(0,0,0,.55),0 12px 44px rgba(0,0,0,.85)}
-.winH{display:flex;align-items:center;gap:10px;padding:10px 14px;flex:0 0 auto;
+.winH{display:flex;align-items:center;gap:10px;flex:0 0 auto;
+  padding:max(10px,env(safe-area-inset-top)) 14px 10px 14px;
   border-bottom:1px solid #3a3020;position:relative;
   background:linear-gradient(180deg,rgba(112,86,30,.42),rgba(0,0,0,.18))}
 .winH::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;
@@ -232,6 +233,13 @@ input::placeholder{color:#5b5470}
 .winF{display:none;flex:0 0 auto;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
   border-top:1px solid #3a3020;background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.5))}
 .winF>button{width:100%;padding:13px;font-size:14px}
+/* 화면에 고정된 닫기 — 목록이 아무리 길어도 항상 같은 자리에 있다 */
+#ovFloat{position:fixed;z-index:40;display:none;
+  right:calc(10px + env(safe-area-inset-right));
+  bottom:calc(14px + env(safe-area-inset-bottom));
+  width:58px;height:58px;border-radius:50%;font-size:22px;padding:0;
+  background:linear-gradient(180deg,#8d6717,#422c05);color:#fff4d0;
+  box-shadow:inset 0 0 0 2px rgba(240,214,122,.7),0 4px 14px rgba(0,0,0,.7)}
 .cols{display:flex;gap:11px;flex-wrap:wrap}
 .c1{flex:1;min-width:230px}
 .sect{font-size:14px;color:var(--gold2);letter-spacing:0;margin-bottom:7px;
@@ -385,6 +393,18 @@ a.link{color:#8fc0ff;cursor:pointer;text-decoration:underline;font-size:11px}
   .li{padding:8px 10px;font-size:11px}
   .tipbox{height:150px}
 }
+/* 손가락으로 하는 기기 — 세로든 가로든 떠 있는 닫기를 띄운다 */
+@media(hover:none) and (pointer:coarse){
+  #ovFloat{display:block}
+  .winH{padding-top:max(12px,env(safe-area-inset-top))}
+  #ovClose{min-width:52px;height:44px;font-size:17px}
+}
+@media(max-width:900px) and (orientation:portrait){
+  #ovFloat{display:block}
+  .win{max-width:none;max-height:none;height:100%;border-radius:0;border:0}
+  #ov{padding:0}
+  .winF{display:block}
+}
 /* 아주 좁은 화면 */
 @media(max-width:400px){
   .sk{width:33px;height:33px}.sk canvas{width:22px;height:22px}
@@ -422,6 +442,7 @@ a.link{color:#8fc0ff;cursor:pointer;text-decoration:underline;font-size:11px}
       <button id="btnMusic" style="flex:0 0 44px">♪</button>
     </div>
     <div class="note" id="loginNote"></div>
+    <div id="buildTag" style="text-align:center;font-size:9.5px;color:#4f4a63;margin-top:8px"></div>
   </div>
 </div>
 
@@ -546,6 +567,7 @@ a.link{color:#8fc0ff;cursor:pointer;text-decoration:underline;font-size:11px}
       <button id="ovClose" aria-label="닫기">✕</button></div>
     <div class="winB" id="ovBody"></div>
     <div class="winF"><button id="ovClose2">닫기</button></div>
+  <button id="ovFloat" aria-label="닫기">✕</button>
   </div>
 </div>
 </div>
@@ -5292,11 +5314,12 @@ function draw(){
   const tall=cv.height/cv.width>1.35;                 // 세로로 긴 화면(폰)
   /* 세로 화면에서는 좌우를 아주 조금(각 4%) 넘기더라도 크게 보여준다.
      유닛은 무대 안쪽으로 제한돼 있어 잘려 나가는 일은 없다. */
-  const ctrlH=tall?cv.height*0.26:cv.height*0.10;
+  const wide=cv.width/cv.height>1.85;                 // 폰 가로처럼 아주 넓은 화면
+  const ctrlH=tall?cv.height*0.26:(wide?cv.height*0.16:cv.height*0.10);
   const spanEst=96+W.horizon+(W.y1-W.y0)*PJ.tilt+26;
-  const fit=Math.min(SCALE*(tall?1.9:1),
-                     cv.width/(stageW*(tall?0.92:1.24)),
-                     tall?(cv.height-ctrlH)/spanEst:1e9);
+  const fit=Math.min(SCALE*(tall?1.9:wide?1.6:1),
+                     cv.width/(stageW*(tall?0.92:wide?1.02:1.24)),
+                     (cv.height-ctrlH)/spanEst);        // 세로가 먼저 걸리면 좌우에 여백이 남는다
   const S=fit;
   /* 세로 화면에서는 무대가 위로 쏠리고 아래가 텅 비었다.
      실제로 그려지는 세로 범위를 재서 화면 가운데에 맞춘다. */
@@ -6311,6 +6334,7 @@ function openWin(kind){
 function closeWin(){ $('#ov').classList.add('hide'); if(W){ refreshHud(); renderSkillBar(); } }
 $('#ovClose').onclick=closeWin;
 $('#ovClose2').onclick=closeWin;
+{ const f=$('#ovFloat'); if(f) f.onclick=closeWin; }
 /* 창 바깥(어두운 배경)을 눌러도 닫힌다 — 모바일에서 확실한 탈출구 */
 $('#ov').addEventListener('click',e=>{ if(e.target&&e.target.id==='ov') closeWin(); });
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#ov').classList.contains('hide')) closeWin(); });
@@ -7079,6 +7103,7 @@ function winMenu(){
     <button id="mChar">캐릭터 선택</button>
     <button id="mMusic">${Music.isOn()?'음악 끄기':'음악 켜기'}</button>
     <button id="mFx">화질 — ${['끔(가장 빠름)','보통','높음'][FX2.q]}</button>
+    <div class="dim" style="font-size:10px;text-align:center;margin-top:2px">빌드 ${BUILD}</div>
     <button id="mExport">세이브 내보내기 (다른 기기로)</button>
     <button id="mImport">세이브 불러오기</button>
     <button id="mLogout">로그아웃</button>
@@ -7230,6 +7255,7 @@ $('#btnLogin').onclick=()=>{
    주의: 값이 파일 안에 있으므로 소스를 열면 확인 가능하다.
    진짜 보호는 서버 인증이 있어야만 가능하다. */
 const GM_ID='Frio', GM_PW='6599';
+const BUILD='2026.08.01-b';   // 어떤 판이 돌고 있는지 확인용
 function grantAll(c){
   c.gm=1; c.rank=MAX_RANK; c.xp=0;
   c.gold=9999999; c.gem=99999; c.seal=99999; c.rating=Math.max(c.rating||1000,1500);
@@ -7630,6 +7656,7 @@ $('#btnSkipStory').onclick=()=>{
    ====================================================================== */
 /* 여기까지 실행됐다면 자바스크립트는 정상이다 */
 { const jw=$('#jsWarn'); if(jw) jw.remove(); }
+{ const bt=$('#buildTag'); if(bt) bt.textContent='빌드 '+BUILD; }
 /* 조용히 죽지 않게 — 오류가 나면 화면 아래에 그대로 보여준다 */
 function showErr(msg){
   const b=$('#errBar'); if(!b) return;
