@@ -280,6 +280,9 @@ input::placeholder{color:#5b5470}
 .tree{position:relative;min-height:340px;border-radius:2px;overflow:auto;
   background:radial-gradient(ellipse at 50% 0%,#1c1830,#0c0a14);border:1px solid #0a0810;
   box-shadow:inset 0 0 0 1px rgba(201,162,39,.20)}
+.treeWrap{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+  padding-bottom:4px;overscroll-behavior-x:contain}
+.tree{position:relative}
 .tnode{position:absolute;width:62px;text-align:center;cursor:pointer}
 .tnode canvas{width:46px;height:46px;border-radius:3px;border:1px solid #0a0810;background:#0e0c16;
   box-shadow:inset 0 0 0 2px #443a20}
@@ -537,14 +540,8 @@ a.link{color:#8fc0ff;cursor:pointer;text-decoration:underline;font-size:11px}
         <div id="dpsList" style="font-size:10px;line-height:1.5"></div></div>
       <div class="pbox" id="objBox"><div class="oh">현재 목표</div><div class="ot" id="objTxt"></div><div class="os" id="objSub"></div></div>
       <div class="menuBtns">
-        <button class="mb" data-win="inv" title="가방">🎒</button>
-        <button class="mb" data-win="skill" title="스킬">✦</button>
-        <button class="mb" data-win="shop" title="상점">🛒</button>
-        <button class="mb" data-win="quest" title="임무">📜</button>
-        <button class="mb" data-win="ach" title="업적">🏆</button>
-      <button class="mb" data-win="codex" title="도감">📖</button>
-        <button class="mb" id="btnAuto2" title="자동">▶</button>
-        <button class="mb" id="btnMenu" title="메뉴">≡</button>
+        <button class="mb" id="btnAuto2" title="자동 조작"></button>
+        <button class="mb" id="btnMenu" title="메뉴"></button>
       </div>
     </div>
     <div id="logBox"></div>
@@ -2863,6 +2860,77 @@ const SPEC_ICON={frost:'frost',fire:'fire',poison:'poison',fury:'fury',prot:'pro
   holy:'holy2',shadow:'shadow',disc:'disc',marks:'marks',beast:'beast',trap:'trap',
   frostdk:'runeblade',blooddk:'blood',unholydk:'plague',
   assassin:'venom',subtle:'cloak',retri:'judge',guard:'aegis'};
+/* 메뉴 아이콘 — 이모지 대신 직접 찍은 도트. 게임 안 물건들로 만든다. */
+function drawMenuIcon(ctx,kind,scale){
+  withCtx(ctx,scale,()=>{
+    const G='#c9a227', GL='#f0d67a', GD='#7a5a28', S2='#8e8aa0', SD='#4a4658';
+    switch(kind){
+     case 'bag':                                   // 가방 — 잠금쇠 달린 가죽 배낭
+       px(3,5,10,9,'#6a4526'); px(4,6,8,7,'#8a5c33');
+       px(3,4,10,2,'#5a3a20'); px(5,2,2,3,'#5a3a20'); px(9,2,2,3,'#5a3a20');
+       px(7,7,2,4,G); px(6,8,4,2,GL); px(4,13,8,1,'#4a2f18'); break;
+     case 'skill':                                 // 스킬 — 룬이 새겨진 서
+       px(4,2,8,12,'#2a2438'); px(5,3,6,10,'#3d3550');
+       px(7,4,2,8,GL); px(5,6,6,2,GL); px(6,10,4,1,G); break;
+     case 'shop':                                  // 상점 — 금화 더미
+       for(let a=0;a<6.28;a+=.3) px(8+Math.cos(a)*4.5,9+Math.sin(a)*3,2,2,G);
+       px(5,8,6,3,GL); px(7,9,2,1,'#fff8d0');
+       for(let a=0;a<6.28;a+=.4) px(6+Math.cos(a)*3,5+Math.sin(a)*2,2,2,GD);
+       px(4,12,8,2,GD); break;
+     case 'quest':                                 // 임무 — 밀랍 봉인한 두루마리
+       px(3,3,10,10,'#d8ceac'); px(3,3,10,1,'#f0e8c8'); px(3,12,10,1,'#a89a78');
+       px(5,5,6,1,'#6a5a3a'); px(5,7,6,1,'#6a5a3a'); px(5,9,4,1,'#6a5a3a');
+       px(6,10,4,4,'#a8302a'); px(7,11,2,2,'#d8483c'); break;
+     case 'ach':                                   // 업적 — 월계관에 싸인 별
+       for(let i=0;i<5;i++){ px(2+i,10-i,2,2,'#4a8a3a'); px(12-i,10-i,2,2,'#4a8a3a'); }
+       px(7,3,2,3,GL); px(4,6,8,2,GL); px(5,8,6,2,G); px(4,10,3,3,G); px(9,10,3,3,G); break;
+     case 'codex':                                 // 도감 — 펼친 책
+       px(1,4,14,9,'#3a2a44'); px(2,5,6,7,'#6a5a8a'); px(9,5,5,7,'#6a5a8a');
+       px(8,4,1,9,'#2a1e34');
+       px(3,7,4,1,GL); px(10,7,3,1,GL); px(3,9,4,1,'#a89ac8'); break;
+     case 'auto':                                  // 자동 — 톱니 안의 재생 화살
+       for(let a=0;a<6.28;a+=.78){ px(8+Math.cos(a)*6,8+Math.sin(a)*6,3,3,SD); }
+       for(let a=0;a<6.28;a+=.2) px(8+Math.cos(a)*4.5,8+Math.sin(a)*4.5,2,2,S2);
+       px(6,4,2,8,GL); px(8,6,2,4,GL); px(10,7,1,2,GL); break;
+     case 'pause':                                 // 자동 끄기 — 정지
+       for(let a=0;a<6.28;a+=.78){ px(8+Math.cos(a)*6,8+Math.sin(a)*6,3,3,SD); }
+       for(let a=0;a<6.28;a+=.2) px(8+Math.cos(a)*4.5,8+Math.sin(a)*4.5,2,2,S2);
+       px(5,5,2,6,GL); px(9,5,2,6,GL); break;
+     case 'menu':                                  // 메뉴 — 룬석 세 줄
+       px(2,3,12,2,G); px(2,7,12,2,GL); px(2,11,12,2,G);
+       px(1,3,1,2,GD); px(14,3,1,2,GD); px(1,11,1,2,GD); px(14,11,1,2,GD); break;
+     case 'sup':                                   // 보급 — 물약
+       px(6,1,4,3,'#6a5a3a'); px(5,3,6,2,'#8a7a4a');
+       px(4,5,8,9,'#2a4a3a'); px(5,6,6,7,'#3f9c4a'); px(6,7,2,4,'#8fe89a'); break;
+     case 'mog':                                   // 모습변환 — 가위와 실
+       px(3,2,2,7,S2); px(11,2,2,7,S2);
+       for(let a=0;a<6.28;a+=.5){ px(4+Math.cos(a)*3,12+Math.sin(a)*3,2,2,GD);
+         px(11+Math.cos(a)*3,12+Math.sin(a)*3,2,2,GD); }
+       px(7,4,2,4,GL); break;
+     case 'raid':                                  // 원정 — 균열문
+       for(let r=0;r<5;r++) px(4+r,3-r*0+r,8-r*2,10-r*2,r?'#5a2a8a':'#2a1440');
+       px(6,5,4,7,'#a05cff'); px(7,6,2,5,'#e0c0ff');
+       px(2,13,12,2,'#3a2a4a'); break;
+     default: px(4,4,8,8,S2); px(6,6,4,4,GL); }
+  });
+}
+/* 길게 누르면 설명 — 화면에는 그림만 두고, 글은 필요할 때만 */
+function longPress(el,msg){
+  if(!el||!msg) return;
+  let tm=null;
+  const go=()=>{ tm=setTimeout(()=>{ tm=null; toast(msg); },420); };
+  const off=()=>{ if(tm){ clearTimeout(tm); tm=null; } };
+  el.addEventListener('touchstart',go,{passive:true});
+  el.addEventListener('touchend',off); el.addEventListener('touchmove',off);
+  el.addEventListener('mousedown',go); el.addEventListener('mouseup',off);
+  el.addEventListener('mouseleave',off);
+}
+function menuBtn(el,kind){
+  if(!el) return; el.innerHTML='';
+  const c=document.createElement('canvas'); c.width=32; c.height=32;
+  c.style.cssText='width:22px;height:22px;image-rendering:pixelated';
+  el.appendChild(c); drawMenuIcon(c.getContext('2d'),kind,2);
+}
 function drawEmblem(ctx,kind,color,scale,noBg){
   withCtx(ctx,scale,()=>{ if(!noBg) px(0,0,16,16,'#12121e');
     const C=color,L=sh(color,55),D=sh(color,-40);
@@ -3577,7 +3645,7 @@ function buildCrypt(){
 }
 function enterCrypt(){
   const w=buildCrypt(); w.me=makeMe(); w.me.x=0; w.me.y=284; W=w;
-  W.auto=false; $('#btnAuto2').textContent='▶';
+  W.auto=false; menuBtn($('#btnAuto2'),'pause');
   $('#bossBox').classList.add('hide');
   Music.set('intro');
   $('#cZone').textContent='로엔가르드 지하 납골당';
@@ -3714,7 +3782,7 @@ function makeHeroParty(d,pdps){ return HEROES.map(h=>makeHero(h,d,pdps)); }   //
 
 function enterCamp(){
   const w=buildCamp(); w.me=makeMe(); w.me.x=0; w.me.y=118; W=w;
-  W.auto=false; $('#btnAuto2').textContent='▶';
+  W.auto=false; menuBtn($('#btnAuto2'),'pause');
   Music.set('town'); $('#bossBox').classList.add('hide');
   $('#cZone').textContent=W.theme?W.theme.n:'거점'; showScreen('game'); refreshHud(); renderSkillBar();
 }
@@ -3743,7 +3811,7 @@ function enterRaid(raid,diffId,sizeN){
     logM('<b style="color:#8fe8a0">'+(pr.name||'친구')+'</b> 님이 함께합니다.'); }
   w.party.forEach((p,i)=>{ p.x=-40+i*22; p.y=175; });
   w.d=d; w.pdps=pdps; w.trail=[{x:w.me.x,y:w.me.y}]; w.mom=0; w.momT=0; w.ovl=0;
-  W=w; W.auto=false; $('#btnAuto2').textContent='▶';
+  W=w; W.auto=false; menuBtn($('#btnAuto2'),'pause');
   Music.set('dungeon'); $('#bossBox').classList.add('hide');
   $('#cZone').textContent=raid.n+' ['+DF.n+'] · 전초전';
   logs=[]; logM('<b style="color:#ffcf6b">'+raid.n+'</b> <span style="color:#8fc0ff">['+DF.n+']</span> — 문 앞의 무리를 먼저 정리하세요.');
@@ -4120,8 +4188,11 @@ function killEnemy(e){
   burstParts(e.x,e.y-8,'void',e.color||'#8a3cd8','#d8a0ff');
   if(e.isBoss){
     if(W.raid&&W.raid.id==='r5') bump('fallen',1);
-    W.phase='done'; W.win=true; const R=W;
-    setTimeout(()=>{ R.pvp?finishDuel(true,R):finishRun(true,R); },900); return; }
+    W.phase='done'; W.win=true; W.doneAt=now(); const R=W;
+    setTimeout(()=>{ try{ R.pvp?finishDuel(true,R):finishRun(true,R); }
+      catch(e){ showErr('정산 처리 오류: '+e.message);
+        $('#ov').classList.add('hide'); toast('거점으로 돌아갑니다'); try{ enterCamp(); }catch(_){} } },900);
+    return; }
   W.killed++; W.xp+=e.elite?30:8; W.gold+=e.elite?14:3;
   bump('kill',1); if(e.elite) bump('elite',1);
 }
@@ -4609,7 +4680,7 @@ function enterRaidClient(raid,diffId){
   w.party=[]; w.mobs=[]; w.d=d; w.pdps=pdps; w.trail=[{x:0,y:160}];
   w.client=true; w.phase='vanguard'; w.startAt=now(); w.loot=[]; w.gold=0; w.xp=0;
   w.killed=0; w.deaths=0; w.dmgDone=0;
-  W=w; W.auto=false; $('#btnAuto2').textContent='▶';
+  W=w; W.auto=false; menuBtn($('#btnAuto2'),'pause');
   Music.set('dungeon');
   $('#cZone').textContent=raid.n+' · 협동';
   logs=[]; logM('<b style="color:#8fe8a0">협동 원정</b> — 방장의 세상에 합류했습니다.');
@@ -4674,7 +4745,7 @@ function enterArena(code){
   try{ w.foe=code?foeFromCode(code):makeDuelist(P.rating||1000); }
   catch(e){ toast('결투 코드가 올바르지 않습니다'); w.foe=makeDuelist(P.rating||1000); }
   w.friendDuel=!!(w.foe&&w.foe.friend); w.foeCode=code||null; w.boss=w.foe;
-  W=w; W.auto=false; $('#btnAuto2').textContent='▶';
+  W=w; W.auto=false; menuBtn($('#btnAuto2'),'pause');
   Music.set('boss'); $('#bossBox').classList.remove('hide');
   $('#cZone').textContent='투기장 · '+(P.rating||1000)+'점';
   logs=[]; logM((w.friendDuel?'<b style="color:#8fd8ff">친구 대전</b> — ':'')
@@ -5023,6 +5094,13 @@ function postCombat(dt){
     return z.life>0; });
   W.hits=W.hits.filter(h=>{ h.life-=dt; h.y-=dt*16; return h.life>0; });
   if(W.shake>0) W.shake-=dt;
+  /* 안전망 — 보스를 잡았는데 결과 창이 4초 넘게 안 뜨면 강제로 마무리한다.
+     예전에 여기서 화면이 굳어 버리는 일이 있었다. */
+  if(W.phase==='done'&&!W.finished){ W.doneT=(W.doneT||0)+dt; }
+  if(W.phase==='done'&&!W.finished&&(W.doneT||0)>4.5){
+    W.doneT=0; const R=W;
+    try{ R.pvp?finishDuel(!!R.win,R):finishRun(!!R.win,R); }
+    catch(e){ toast('거점으로 돌아갑니다'); try{ enterCamp(); }catch(_){} } }
   if(W.diveT>0){ W.diveT-=dt; if(W.boss) W.boss.fly=Math.max(0,W.diveT); }
   else if(W.boss) W.boss.fly=0;
   if(!W.pvp&&!W.prologue&&me.dead&&W.party.every(p=>p.dead)&&W.phase!=='done'){
@@ -5112,6 +5190,7 @@ function startBoss(){
     anim:'idle',at:0,face:-1,flash:0,swing:2,slow:0,
     timers:raid.abil.map(a=>({id:a.id,cd:a.cd,left:a.cd*rnd(.35,.8),n:a.n}))};
   W.phase='boss'; W.combatT=0; W.beam=null; W.beacon=null; W.orbs=null; W.split=null;
+  W.arcFx=[]; W.beamFx=[]; W.charge=null;
   W.cone=null; W.blizz=null; W.orbit=null; W.tether=null;
   allUnits().forEach(u=>u.chain=null);
   Music.set('boss'); $('#bossBox').classList.remove('hide');
@@ -5127,7 +5206,9 @@ function stepBoss(dt){
   b.x=clamp(b.x,W.x0+30,W.x1-30); b.y=clamp(b.y,W.y0+26,W.y1-40);
   const units=allUnits().filter(u=>!u.dead);
   if(!units.length){ if(W.prologue) return;
-    W.phase='done'; W.win=false; const R=W; setTimeout(()=>finishRun(false,R),800); return; }
+    W.phase='done'; W.win=false; W.doneAt=now(); const R=W;
+    setTimeout(()=>{ try{ finishRun(false,R); }
+      catch(e){ $('#ov').classList.add('hide'); try{ enterCamp(); }catch(_){} } },800); return; }
   const tt=topThreat();
   if(tt&&tt!==b.target){
     if(tt.isP&&SPECS[P.spec].role!=='탱커')
@@ -5163,14 +5244,30 @@ function stepBoss(dt){
   const eM=(b.enraged?(2.4+b.rage*0.16):1)*DFm('dmg')*PSZd();   // 광폭화는 점점 매워진다
   b.swing-=dt;
   if(b.swing<=0&&!b.cast){ b.swing=1.9; setAnim(b,'atk');
-    addFx('bossHit',{x:b.target.x,y:b.target.y-8,r:14,rot:rnd(-.6,.6),life:.28});
-    hurt(b.target,D.swing*eM,'보스 공격'); }
+    const tg=b.target, ang=Math.atan2(tg.y-b.y,tg.x-b.x);
+    addFx('bossHit',{x:tg.x,y:tg.y-8,r:14,rot:ang,life:.32});
+    /* 휘두르는 궤적이 실제로 보인다 */
+    W.arcFx=W.arcFx||[];
+    W.arcFx.push({x:b.x,y:b.y-8,ang,r:Math.min(64,Math.hypot(tg.x-b.x,tg.y-b.y)+14),
+      t:0.26,max:0.26,c:W.raid.theme||'#ff8a3c'});
+    for(let k=0;k<10;k++){ const a2=ang+rnd(-.7,.7);
+      part(b.x+Math.cos(a2)*22,b.y-8+Math.sin(a2)*14,
+        Math.cos(a2)*120,Math.sin(a2)*80,rnd(.2,.4),'#ffd8b0',2); }
+    hurt(tg,D.swing*eM,'보스 공격'); }
   if(b.absorbT>0){ b.absorbT-=dt;
     if(b.absorbT<=0&&b.absorb>0){ b.absorb=0; W.shake=.6;
       addFx('bossRoar',{x:b.x,y:b.y,r:240,life:.8});
       units.forEach(u=>hurt(u,D.roar*2.2*eM,'방벽 붕괴')); logM('<b style="color:#ff4444">방벽을 깨지 못했습니다!</b>'); } }
+  if(W.charge){ const ch=W.charge; ch.t-=dt; ch.x=b.x; ch.y=b.y-10;
+    const pr=1-clamp(ch.t/ch.max,0,1);
+    if(Math.random()<0.7){                          // 사방에서 빨려드는 기운
+      const a2=rnd(0,6.28), rr=52*(1-pr)+10;
+      part(ch.x+Math.cos(a2)*rr,ch.y+Math.sin(a2)*rr*0.6,
+        -Math.cos(a2)*rr*1.6,-Math.sin(a2)*rr*1.0,0.42,ch.c,2); }
+    if(ch.t<=0) W.charge=null; }
   if(b.cast){ b.castT-=dt;
     if(b.castT<=0){ const id=b.castId; b.cast=null; b.castId=null; setAnim(b,'idle');
+      W.charge=null;
       bossAbility(id,b.timers.find(t=>t.id===id)||{}); } }
   else { b.gcd=Math.max(0,(b.gcd||0)-dt);
     b.timers.forEach(tm=>{ tm.left-=dt;
@@ -5179,7 +5276,8 @@ function stepBoss(dt){
         if(big&&b.gcd>0){ tm.left=0.6; return; }
         tm.left=tm.cd; if(big) b.gcd=3.8;
         const A=ABIL[tm.id];
-        if(A.cast>0){ b.cast=A.n; b.castId=tm.id; b.castT=A.cast; b.castMax=A.cast; setAnim(b,'cast'); }
+        if(A.cast>0){ b.cast=A.n; b.castId=tm.id; b.castT=A.cast; b.castMax=A.cast; setAnim(b,'cast');
+          W.charge={x:b.x,y:b.y-10,t:A.cast,max:A.cast,c:W.raid.theme}; }
         else bossAbility(tm.id,tm); } }); }
   if(!b.p2&&b.hp<b.maxhp*0.40&&W.raid&&(W.raid.id==='r4'||W.raid.id==='r5')){   // 후반부 각성
     b.p2=true; W.shake=.8; b.timers.forEach(tm=>{ tm.cd*=0.72; tm.left=Math.min(tm.left,tm.cd); });
@@ -5197,10 +5295,27 @@ function stepBoss(dt){
   // 예고·기믹 진행
   W.tele=W.tele.filter(t=>{ t.warn-=dt;
     if(t.warn<=0){
-      if(t.type==='circle'){ addFx('fireBlast',{x:t.x,y:t.y,r:t.r,life:.5}); W.shake=.3;
+      if(t.type==='circle'){
+        /* 예고만 있고 실제 공격이 안 보이던 문제 — 하늘에서 떨어지는 덩어리를 그린다 */
+        addFx('fireBlast',{x:t.x,y:t.y,r:t.r,life:.55});
+        for(let k=0;k<18;k++){ const a2=rnd(0,6.28), rr=rnd(0,t.r);
+          part(t.x+Math.cos(a2)*rr,t.y+Math.sin(a2)*rr*0.6-6,
+            Math.cos(a2)*90,Math.sin(a2)*58-40,rnd(.45,.9),
+            Math.random()<.5?(W.raid.theme||'#ff8a3c'):'#ffe0a0',2); }
+        for(let k=0;k<8;k++) part(t.x+rnd(-6,6),t.y-90+k*10,0,220,.35,'#ffd8a0',3);
+        W.shake=.3;
         allUnits().forEach(u=>{ if(!u.dead&&Math.hypot(u.x-t.x,u.y-t.y)<t.r) hurt(u,t.dmg,'붕괴하는 하늘'); }); }
       else { if(t.mv!==false){ setAnim(b,'dash'); b.x=clamp(t.x1,W.x0+30,W.x1-30); b.y=clamp(t.y1,W.y0+26,W.y1-40); }
         W.shake=.35; addFx(t.mv===false?'fireBlast':'bossRoar',{x:t.x1,y:t.y1,r:50,life:.4});
+        /* 직선기 — 실제로 화염/기운이 뻗어 나가는 게 보이게 */
+        { const A2=t.x1-t.x0, B2=t.y1-t.y0, L2=Math.hypot(A2,B2)||1;
+          const C2=W.raid.theme||'#ff8a3c';
+          W.beamFx=W.beamFx||[];
+          W.beamFx.push({x0:t.x0,y0:t.y0,x1:t.x1,y1:t.y1,t:0.55,max:0.55,c:C2});
+          for(let q=0;q<Math.min(30,L2/9);q++){ const f2=q/(L2/9);
+            part(t.x0+A2*f2+rnd(-5,5),t.y0+B2*f2+rnd(-4,4),
+              A2/L2*rnd(30,90),B2/L2*rnd(20,60),rnd(.3,.7),
+              Math.random()<.5?C2:'#ffe0a0',2); } }
         allUnits().forEach(u=>{ if(u.dead) return;
           const A=t.x1-t.x0,B=t.y1-t.y0,L=Math.hypot(A,B)||1;
           const dist=Math.abs((u.x-t.x0)*B-(u.y-t.y0)*A)/L;
@@ -5447,6 +5562,31 @@ function draw(){
         g.globalAlpha=1; }
     } }}));
   ents.sort((a,b)=>a.y-b.y).forEach(e=>e.f());
+  /* 보스 공격 궤적 · 직선 화염 — 예고가 아니라 「맞는 순간」이 보이게 */
+  if(W.arcFx&&W.arcFx.length){
+    W.arcFx=W.arcFx.filter(f=>{ f.t-=1/60; return f.t>0; });
+    W.arcFx.forEach(f=>{ const pr=1-f.t/f.max;
+      for(let k=0;k<12;k++){ const a2=f.ang-0.85+ (k/11)*1.7;
+        const rr=f.r*(0.45+pr*0.75);
+        groundEllipse(f.x+Math.cos(a2)*rr,f.y+Math.sin(a2)*rr*0.62,
+          7*(1-pr)+3,k%3?f.c:'#ffe8c0',(1-pr)*0.75); } });
+  }
+  if(W.beamFx&&W.beamFx.length){
+    W.beamFx=W.beamFx.filter(f=>{ f.t-=1/60; return f.t>0; });
+    W.beamFx.forEach(f=>{ const pr=1-f.t/f.max, al=(1-pr)*0.9;
+      const A2=f.x1-f.x0,B2=f.y1-f.y0,L2=Math.hypot(A2,B2)||1;
+      const reach=Math.min(1,pr*2.2);
+      for(let q=0;q<L2*reach;q+=7){
+        const w2=13*(1-pr*0.5)*(1-q/L2*0.35);
+        groundEllipse(f.x0+A2/L2*q,f.y0+B2/L2*q,w2,f.c,al*0.55);
+        groundEllipse(f.x0+A2/L2*q,f.y0+B2/L2*q,w2*0.45,'#ffeec8',al*0.8); } });
+  }
+  if(W.charge){ const ch=W.charge, pr=1-clamp(ch.t/ch.max,0,1);
+    const p=proj(ch.x,ch.y), r2=(4+pr*13)*p.sc;
+    g.globalAlpha=.35+.35*pr;
+    for(let a2=0;a2<6.28;a2+=.3) px(p.sx+Math.cos(a2)*r2,p.sy+Math.sin(a2)*r2*0.7,3*p.sc,3*p.sc,ch.c);
+    g.globalAlpha=.55+.35*pr; px(p.sx-r2*0.4,p.sy-r2*0.3,r2*0.8,r2*0.6,'#ffeec8');
+    g.globalAlpha=1; }
   drawFxProjected();
   // 구슬 본체
   if(W.orbs) W.orbs.forEach(o=>{ if(o.taken) return;
@@ -6457,26 +6597,22 @@ function winSkill(){
   const sp=SPECS[P.spec], b=$('#ovBody');
   b.innerHTML=`<div class="cols">
     <div class="c1" style="flex:1.25">
-      <div class="sect">특성 트리 <span class="dim">포인트 ${treeLeft()} / ${treeTotal()} 남음 · 숙련도 1당 1</span></div>
-      <div class="tree" id="tree"></div>
-      <div style="margin-top:8px"><button id="btnReset">트리 초기화</button>
-        <span class="dim" style="font-size:10.5px;margin-left:8px">같은 갈래의 아래 단계를 찍어야 위로 올라갑니다</span></div>
-      <div class="sect" style="margin-top:12px">사용 스킬 <span class="dim">1~4 고정 · 5~6 직접 장착</span></div>
+      <div class="sect">특성 <span class="dim">${treeLeft()} / ${treeTotal()}</span></div>
+      <div class="treeWrap"><div class="tree" id="tree"></div></div>
+      <div style="margin-top:8px"><button id="btnReset">초기화</button></div>
+      <div class="sect" style="margin-top:12px">스킬</div>
       <div id="slotArea"></div>
-      <div class="sect" style="margin-top:12px">룬 <span class="dim">1~4번 스킬마다 하나</span></div>
+      <div class="sect" style="margin-top:12px">룬</div>
       <div id="runeArea"></div>
     </div>
-    <div class="c1" style="flex:0 0 230px">
-      <div class="sect">역할 — ${SPECS[P.spec].role}</div>
-      <div class="li" style="font-size:10.5px;line-height:1.6">${ROLE_INFO[SPECS[P.spec].role]||''}</div>
-      <div class="sect" style="margin-top:10px">특성 <span class="dim">${P.passives.length} / ${pasSlots()}칸</span></div>
-      <div class="dim" style="font-size:10.5px;margin-bottom:6px">
-        ${pasSlots()?'목록을 <b style="color:#f0d67a">눌러서 직접 선택</b>합니다. 다시 누르면 해제됩니다. 자동 적용이 아닙니다.'
-          :'숙련도 5에서 첫 칸이 열립니다.'}</div>
+    <div class="c1" style="flex:0 0 210px">
+      <div class="sect">각인 <span class="dim">${P.passives.length} / ${pasSlots()}</span></div>
       <div id="pasList"></div>
-      <div class="sect" style="margin-top:12px">숙련도 해금</div>
+      <div class="sect" style="margin-top:12px">해금</div>
       <div id="mastList" style="font-size:10.5px;line-height:1.8"></div>
-    </div></div>`;
+    </div></div>
+    <div class="dim" style="font-size:10px;margin-top:10px;text-align:center">
+      아이콘을 길게 누르면 상세 설명</div>`;
   /* --- 트리 --- */
   const tree=$('#tree'); const COLW=112, ROWH=74;
   TREE_BRANCH.forEach((br,bi)=>{
@@ -6495,12 +6631,12 @@ function winSkill(){
       e.appendChild(c);
       if(gk) drawExtraIcon(c.getContext('2d'),EXTRA[gk],3);
       else drawEmblem(c.getContext('2d'),'m'+((bi*4+t)%10+1),got?br.c:'#6a6280',3);
-      e.insertAdjacentHTML('beforeend',
-        `<div class="nn">${nd.n}</div><div class="nn" style="color:#5c5876">${t}단계</div>`);
-      e.onclick=()=>{ if(got){ toast(nd.n+' — 이미 배움'); return; }
-        if(!canLearn(id)){ toast(treeLeft()<=0?'포인트가 없습니다':'아래 단계를 먼저 찍으세요'); return; }
+      e.insertAdjacentHTML('beforeend','<div class="nn">'+nd.n+'</div>');
+      const info=nd.n+' — '+nd.d+(gk?'  ·  스킬 「'+EXTRA[gk].n+'」':'');
+      e.onclick=()=>{ if(got){ toast(info); return; }
+        if(!canLearn(id)){ toast(treeLeft()<=0?'포인트 없음':'아래 단계 먼저'); return; }
         learnNode(id); save(); winSkill(); renderSkillBar(); };
-      e.title=nd.n+' — '+nd.d+(gk?' / 스킬 획득: '+EXTRA[gk].n:'');
+      e.title=info; longPress(e,info);
       tree.appendChild(e);
     }
   });
@@ -6517,7 +6653,8 @@ function winSkill(){
       if(!canLearn(id)){ toast('포인트 8 이상을 쓴 뒤 찍을 수 있습니다'); return; }
       learnNode(id); save(); winSkill(); renderSkillBar(); };
     tree.appendChild(e); }
-  tree.style.minHeight=(24+5*ROWH+40)+'px';
+  tree.style.minHeight=(24+5*ROWH+30)+'px';
+  tree.style.width=(18+TREE_BRANCH.length*COLW+60)+'px';   // 칸이 잘리지 않게 폭을 확보
   $('#btnReset').onclick=()=>{ resetTree(); save(); winSkill(); renderSkillBar(); toast('트리를 초기화했습니다'); };
   /* --- 7~10번 슬롯 --- */
   const pool=(P.pool||[]);
@@ -6754,9 +6891,9 @@ function winRaid(){
       <div class="dim" style="margin:4px 0 6px">상대의 종족·전문화·룬·특성·장비를 그대로 물려받은 AI와 1:1.
         보유 인장 ${fmt(P.seal||0)}</div>
       <button class="pri" id="goArena">투기장 입장</button></div>
-    <div class="sect" style="margin-top:12px">협동 <span class="dim">둘이 같은 보스를</span></div>
+    <div class="sect" style="margin-top:12px">협동</div>
     <div class="li" id="coopBox"></div>
-    <div class="sect" style="margin-top:12px">친구 대전 <span class="dim">서버 없이 코드로</span></div>
+    <div class="sect" style="margin-top:12px">친구 대전</div>
     <div class="li">
       <div class="dim" style="font-size:10.5px;line-height:1.7">내 캐릭터를 코드로 뽑아 보내면, 친구 기기에서
         <b>내 종족·전문화·장비 성능이 그대로 재현된 상대</b>와 싸웁니다. 서로 코드를 주고받으면 양쪽에서 겨룰 수 있습니다.
@@ -6765,12 +6902,8 @@ function winRaid(){
         <button id="fdMake">내 결투 코드 만들기</button>
         <button id="fdUse">친구 코드로 대전</button></div>
       <div id="fdBox"></div></div>
-    <div class="sect" style="margin-top:12px">원정 · 전초전 2무리 → 보스</div>
-    <div class="li"><div style="font-size:11.5px;color:#f0d67a">동행 인원</div>
-      <div class="dim" style="font-size:10.5px;margin:3px 0 6px">
-        인원을 줄이면 보스 체력·피해가 함께 내려가지만 <b>보상도 같이 줄어듭니다.</b>
-        혼자여도 클리어는 가능하지만 실수 한 번이 치명적입니다.</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap" id="pszRow"></div></div>
+    <div class="sect" style="margin-top:12px">원정</div>
+    <div class="li"><div style="display:flex;gap:5px;flex-wrap:wrap" id="pszRow"></div></div>
     <div id="raidRows"></div>
     <div class="sect" style="margin-top:12px">딜 사이클 <span class="dim">${sp0().n} 기준 우선순위</span></div>
     <div class="li"><div style="font-size:10.5px;line-height:1.9">
@@ -6785,7 +6918,8 @@ function winRaid(){
     const b2=document.createElement('button');
     b2.className=(P.party5||5)===sz.n?'pri':'';
     b2.style.cssText='padding:6px 10px;font-size:11.5px';
-    b2.innerHTML=`${sz.label}<div style="font-size:9px;color:#8d8499">보스 x${(sz.mult/REF_MULT).toFixed(2)} · 보상 x${sz.rew}</div>`;
+    b2.textContent=sz.label;
+    longPress(b2,sz.label+' — 보스 체력 x'+(sz.mult/REF_MULT).toFixed(2)+' · 보상 x'+sz.rew);
     b2.onclick=()=>{ P.party5=sz.n; save(); winRaid(); };
     pr.appendChild(b2); });
   const rows=$('#raidRows');
@@ -6811,9 +6945,9 @@ function winRaid(){
     info.style.whiteSpace='pre-line';
     const lockedBy=locked?RAIDS.find(x=>x.id===r.lock):null;
     info.textContent=locked
-      ? ('「'+(lockedBy?lockedBy.boss:'앞선 보스')+'」을(를) 쓰러뜨리면 이야기가 이어집니다.')
-      : (r.d+'\n전리품 i'+r.lootIlvl[0]+'~'+r.lootIlvl[1]
-         +' · 요구 평균 i'+r.req+' · 전용 드랍: '+r.unique.map(u=>u.n).join(', '));
+      ? '앞선 이야기를 끝내야 열립니다'
+      : ('i'+r.lootIlvl[0]+'~'+r.lootIlvl[1]+'  ·  요구 i'+r.req);
+    longPress(el,locked?'잠김':(r.d+'\n전용 드랍: '+r.unique.map(u=>u.n).join(', ')));
     el.appendChild(info);
     const wrap=document.createElement('div');
     wrap.style.cssText='display:flex;gap:5px;flex-wrap:wrap';
@@ -6827,9 +6961,10 @@ function winRaid(){
       btn.className=df.id==='e'?'pri':''; btn.style.cssText='padding:6px 10px;font-size:11.5px';
       const t1=document.createElement('div'); t1.textContent=df.n+(done?' ✔':'');
       const t2=document.createElement('div'); t2.style.cssText='font-size:9px;color:#8d8499';
-      t2.textContent='체력 x'+df.hp+' · 피해 x'+df.dmg+(df.loot?' · 전리품 +'+df.loot:'')
-        +(need>1?' · '+need+'인 이상':'');
-      btn.appendChild(t1); btn.appendChild(t2);
+      t2.textContent=need>1?(need+'인 이상'):'';
+      btn.appendChild(t1); if(t2.textContent) btn.appendChild(t2);
+      longPress(btn,df.n+' — 체력 x'+df.hp+' · 피해 x'+df.dmg
+        +(df.loot?' · 전리품 +'+df.loot:'')+'\n'+df.d);
       btn.disabled=!ok;
       btn.title=df.d+(d.avgIlvl>=r.req+df.req?'':' — 평균 아이템 레벨 '+(r.req+df.req)+' 필요')
         +(okP?'':' — 동행 '+need+'명 이상이 필요합니다');
@@ -7097,7 +7232,14 @@ function winMog(){
 }
 /* ---- 메뉴 ---- */
 function winMenu(){
-  $('#ovBody').innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;max-width:320px;margin:0 auto">
+  const NAV=[['inv','bag','장비 · 가방'],['skill','skill','스킬 · 성장'],['raid','raid','원정'],
+             ['shop','shop','상점'],['sup','sup','보급'],['mog','mog','모습변환'],
+             ['quest','quest','임무'],['ach','ach','업적 · 칭호'],['codex','codex','도감']];
+  $('#ovBody').innerHTML=`<div class="sect">이동</div>
+    <div id="navGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));
+      gap:7px;margin-bottom:14px"></div>
+    <div class="sect">설정</div>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:320px;margin:0 auto">
     <button id="mSave">저장</button>
     <button id="mTown">마을로 돌아가기</button>
     <button id="mChar">캐릭터 선택</button>
@@ -7110,6 +7252,15 @@ function winMenu(){
     <div class="dim" style="font-size:10px;line-height:1.7;margin-top:8px">
       저장 위치: ${Store.ok?'이 브라우저(localStorage)':'메모리(브라우저 저장 차단됨 — 새로고침하면 사라집니다)'}<br>
       기기 간 동기화·계정 보호에는 서버가 필요합니다. 아래 설명을 참고하세요.</div></div>`;
+  const ng=$('#navGrid');
+  if(ng) NAV.forEach(([k,ic,nm])=>{
+    const b=document.createElement('button');
+    b.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;font-size:10.5px';
+    const c=document.createElement('canvas'); c.width=32; c.height=32;
+    c.style.cssText='width:26px;height:26px;image-rendering:pixelated';
+    b.appendChild(c); drawMenuIcon(c.getContext('2d'),ic,2);
+    b.insertAdjacentHTML('beforeend','<span>'+nm+'</span>');
+    b.onclick=()=>openWin(k); ng.appendChild(b); });
   $('#mSave').onclick=()=>{ save(); toast('저장했습니다'); };
   $('#mFx').onclick=()=>{ FX2.q=(FX2.q+1)%3;
     try{ localStorage.setItem('astella-fx',String(FX2.q)); }catch(e){}
@@ -7255,7 +7406,7 @@ $('#btnLogin').onclick=()=>{
    주의: 값이 파일 안에 있으므로 소스를 열면 확인 가능하다.
    진짜 보호는 서버 인증이 있어야만 가능하다. */
 const GM_ID='Frio', GM_PW='6599';
-const BUILD='2026.08.01-b';   // 어떤 판이 돌고 있는지 확인용
+const BUILD='2026.08.01-d';   // 어떤 판이 돌고 있는지 확인용
 function grantAll(c){
   c.gm=1; c.rank=MAX_RANK; c.xp=0;
   c.gold=9999999; c.gem=99999; c.seal=99999; c.rating=Math.max(c.rating||1000,1500);
@@ -7300,7 +7451,7 @@ $('#btnLogout').onclick=()=>{ ACC=null; showScreen('login'); };
 $('#btnMusic').onclick=()=>{ const on=Music.toggle(); $('#btnMusic').textContent=on?'♪ 끄기':'♪'; };
 $('#btnMenu').onclick=()=>openWin('menu');
 $('#btnAuto2').onclick=()=>{ if(!W||W.mode!=='arena'){ toast('전투 중에만 사용할 수 있습니다'); return; }
-  W.auto=!W.auto; $('#btnAuto2').textContent=W.auto?'⏸':'▶';
+  W.auto=!W.auto; menuBtn($('#btnAuto2'),W.auto?'auto':'pause');
   const A=autoTier();
   toast(W.auto?('자동 조작 — 피해 '+Math.round((1-A.d)*100)+'% 감소 · 반응 '+A.r.toFixed(2)+'초 지연 · 보스 전용 드랍 제외')
               :'자동 조작 꺼짐'); };
@@ -7674,6 +7825,7 @@ try{ const q=localStorage.getItem('astella-fx');
   else if(('ontouchstart' in window)||navigator.maxTouchPoints>0) FX2.q=1;  // 모바일 기본 '보통'
 }catch(e){}
 initInput(); resize(); coopBind();
+menuBtn($('#btnAuto2'),'pause'); menuBtn($('#btnMenu'),'menu');
 if(!Store.ok) $('#acErr').innerHTML='<b>주의</b> — 이 브라우저에서 저장이 막혀 있습니다(사생활 보호 모드 등). '
   +'게임은 되지만 창을 닫으면 캐릭터가 사라집니다.';
 $('#loginNote').innerHTML=`계정과 캐릭터는 <b>이 기기의 브라우저</b>에 저장됩니다${Store.ok?'':' (현재 브라우저 저장이 차단되어 메모리에만 유지됩니다)'}.<br>
