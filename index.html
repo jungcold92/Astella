@@ -328,6 +328,44 @@ a.link{color:#8fc0ff;cursor:pointer;text-decoration:underline;font-size:11px}
   .mb{width:34px;height:34px;font-size:14px}
   #objBox{max-width:170px}
 }
+/* ── 세로로 긴 화면(폰 세로) ──
+   전에는 PC용 배치가 그대로 얹혀서 패널이 화면을 반쯤 덮고,
+   무대는 위로 쏠린 채 아래가 텅 비었다. 세로 전용으로 다시 짠다. */
+@media(max-aspect-ratio:3/4){
+  .hudTop{gap:5px;padding:calc(5px + env(safe-area-inset-top)) 6px 5px 6px}
+  .pbox{padding:4px 7px;font-size:10px}
+  #portrait{width:34px;height:34px}
+  #unitFrame{gap:5px;padding:4px 7px 4px 4px}
+  .ufcol{min-width:0;flex:1}
+  .nameRow{font-size:11px}.ttl2{font-size:8.5px}
+  .gauge{height:9px}.gauge.mp{height:7px}.gauge.xp{height:4px}
+  .gauge>span{font-size:7.5px;line-height:9px}
+  #bossBox{max-width:none}
+  .hudRight{top:auto;bottom:calc(160px + env(safe-area-inset-bottom));
+    right:5px;max-width:52%;gap:3px}
+  .chip{font-size:9.5px;padding:3px 7px}
+  #dpsBox{font-size:9px;max-height:104px;overflow:hidden}
+  #objBox{max-width:150px;font-size:9.5px}
+  .menuBtns{gap:3px}
+  .mb{width:31px;height:31px;font-size:13px}
+  #logBox{width:46%;bottom:150px;max-height:52px;font-size:9.5px}
+  .skills{max-width:62%;gap:3px}
+  .sk{width:38px;height:38px}.sk canvas{width:25px;height:25px}
+  .sk .kn{font-size:8px}
+  #stick{width:92px;height:92px}
+  #stick .nub{width:38px;height:38px;left:27px;top:27px}
+  #interact{bottom:calc(126px + env(safe-area-inset-bottom));font-size:11px;padding:6px 12px}
+  #toastBox{top:calc(64px + env(safe-area-inset-top))}
+  .toast{font-size:10.5px;padding:5px 9px}
+  #storyText{font-size:13.5px;line-height:1.8}
+}
+/* 아주 좁은 화면 */
+@media(max-width:400px){
+  .sk{width:33px;height:33px}.sk canvas{width:22px;height:22px}
+  .skills{max-width:66%}
+  .mb{width:28px;height:28px;font-size:12px}
+  #dpsBox{max-height:84px}
+}
 </style>
 </head>
 <body>
@@ -411,13 +449,13 @@ a.link{color:#8fc0ff;cursor:pointer;text-decoration:underline;font-size:11px}
 </div>
 
 <!-- ================= 프롤로그 ================= -->
-<div id="scr-story" class="screen hide" style="justify-content:flex-start;padding-top:20px">
+<div id="scr-story" class="screen hide" style="justify-content:center;padding-top:16px">
   <canvas id="sc" width="640" height="330" style="width:100%;max-width:800px;border:1px solid #24243a"></canvas>
   <div id="storyText" style="min-height:80px;font-size:15.5px;line-height:2.0;color:#ded8ea;
     font-family:var(--ff-title);
     margin:14px auto 0;max-width:700px;white-space:pre-wrap;text-align:center;
     text-shadow:0 1px 3px rgba(0,0,0,.9)"></div>
-  <div style="margin-top:14px"><button class="pri" id="btnNext">계속 ▶</button>
+  <div style="margin-top:18px;display:flex;gap:9px;justify-content:center"><button class="pri" id="btnNext">계속 ▶</button>
     <button id="btnSkipStory">건너뛰기</button></div>
 </div>
 
@@ -3192,7 +3230,10 @@ let logs=[];
 
 /* ---- 2.5D 투영 ----
    깊이 y 가 클수록(=화면 아래) 가깝다. 가까울수록 크게, 옆으로 더 벌어지게. */
-const PJ={near:1.18,far:0.62,conv:0.52,tilt:0.62};
+/* tilt = 깊이 1칸이 화면에서 차지하는 세로 길이.
+   세로로 긴 폰에서는 이 값을 키워야 무대가 화면을 제대로 채운다.
+   (가로로 늘리면 잘리지만, 세로로 늘리는 건 남는 공간을 쓰는 것이라 안전하다) */
+const PJ={near:1.18,far:0.62,conv:0.52,tilt:0.62,tiltBase:0.62};
 function proj(x,y){
   const t=clamp((y-W.y0)/(W.y1-W.y0),0,1);
   const sc=lerp(PJ.far,PJ.near,t);
@@ -3247,6 +3288,8 @@ function resize(){
   const dpr=Math.min(2,window.devicePixelRatio||1);
   cv.width=Math.max(320,Math.floor(r.width*dpr)); cv.height=Math.max(200,Math.floor(r.height*dpr));
   SCALE=clamp(Math.round((cv.width/dpr)/210),2,4)*dpr;
+  const ar=cv.height/Math.max(1,cv.width);
+  PJ.tilt=ar>1.35?clamp(PJ.tiltBase*(0.5+ar*0.62),0.62,1.28):PJ.tiltBase;
   VW=cv.width/SCALE; VH=cv.height/SCALE; TXTS=SCALE;
 }
 const rect=(x,y,w,h,o)=>Object.assign({x,y,w,h},o||{});
@@ -4877,7 +4920,7 @@ function stepIntro(dt){
 /* 등장 연출 화면 — 이름표와 상하 레터박스 */
 function drawIntro(){
   const raid=W.raid; if(!raid) return;
-  const T2=W.introT||0, S2=W._S, ox=cv.width/2, oy=cv.height*0.10;
+  const T2=W.introT||0, S2=W._S, ox=cv.width/2, oy=(W._oy||cv.height*0.10);
   g.save(); g.setTransform(1,0,0,1,0,0);
   const lb=clamp(T2/0.5,0,1)*(T2>4.6?clamp((5.0-T2)/0.4,0,1):1);
   g.fillStyle='#000'; g.globalAlpha=.92;
@@ -5108,11 +5151,25 @@ function draw(){
   const sm=clamp((W.shake||0)*2.6,0,1);              // 세기에 비례 — 툭 끊기지 않는다
   const sx=sm>0?Math.round(rnd(-3,3)*sm):0, sy=sm>0?Math.round(rnd(-2,2)*sm):0;
   // 무대를 화면 중앙에 맞춘다
-  const stageW=(W.x1-W.x0), fit=Math.min(SCALE, cv.width/(stageW*1.24));
+  const stageW=(W.x1-W.x0);
+  const tall=cv.height/cv.width>1.35;                 // 세로로 긴 화면(폰)
+  /* 세로 화면에서는 좌우를 아주 조금(각 4%) 넘기더라도 크게 보여준다.
+     유닛은 무대 안쪽으로 제한돼 있어 잘려 나가는 일은 없다. */
+  const ctrlH=tall?cv.height*0.26:cv.height*0.10;
+  const spanEst=96+W.horizon+(W.y1-W.y0)*PJ.tilt+26;
+  const fit=Math.min(SCALE*(tall?1.9:1),
+                     cv.width/(stageW*(tall?0.92:1.24)),
+                     tall?(cv.height-ctrlH)/spanEst:1e9);
   const S=fit;
-  g.setTransform(S,0,0,S,cv.width/2+sx*S, cv.height*0.10+sy*S);
+  /* 세로 화면에서는 무대가 위로 쏠리고 아래가 텅 비었다.
+     실제로 그려지는 세로 범위를 재서 화면 가운데에 맞춘다. */
+  const topU=-96, botU=W.horizon+(W.y1-W.y0)*PJ.tilt+26;
+  const spanU=botU-topU;
+  const oy=clamp((cv.height-ctrlH-spanU*S)/2 - topU*S, cv.height*0.03, cv.height*0.48);
+  W._oy=oy;
+  g.setTransform(S,0,0,S,cv.width/2+sx*S, oy+sy*S);
   TXTS=S; W._S=S;
-  const cam={x:cv.width/2/S, y:cv.height*0.10/S};
+  const cam={x:cv.width/2/S, y:oy/S};
   W.cx=0;
   drawStage();
   drawTrail();                                        // 발걸음 자국 (바닥에 먼저 깔린다)
@@ -5210,7 +5267,7 @@ function draw(){
     drawAt(u.x,u.y,()=>drawChar(Object.assign({},u,{x:0,y:0,t,mount:u.isP?u.mount:null})));
     if(!u.dead){ const p=proj(u.x,u.y), w=20*p.sc, lf=tierH(u.y)*p.sc;
       g.save(); g.setTransform(1,0,0,1,0,0);
-      const S2=W._S, ox=cv.width/2, oy=cv.height*0.10;
+      const S2=W._S, ox=cv.width/2, oy=(W._oy||cv.height*0.10);
       const X=ox+p.sx*S2, Y=oy+(p.sy-lf-31*p.sc)*S2;
       g.fillStyle='#0a0a12'; g.fillRect(X-w*S2/2,Y,w*S2,2.4*S2);
       g.fillStyle=u.isP?'#4ae04a':u.role==='탱커'?'#c9a04a':u.role==='힐러'?'#4ac9c9':'#c9542a';
@@ -5266,7 +5323,7 @@ function draw(){
   if(W.phase==='done'){ g.fillStyle='rgba(0,0,0,.5)'; g.fillRect(0,0,cv.width,cv.height); }
 }
 function txtScreen(str,x,y,c,size){
-  const S2=W._S, ox=cv.width/2, oy=cv.height*0.10;
+  const S2=W._S, ox=cv.width/2, oy=(W._oy||cv.height*0.10);
   g.save(); g.setTransform(1,0,0,1,0,0);
   g.font=Math.max(8,size*S2)+'px "Segoe UI","Malgun Gothic",sans-serif'; g.textAlign='center';
   g.fillStyle='#000'; g.fillText(str,ox+x*S2+1,oy+y*S2+1);
@@ -5357,7 +5414,7 @@ function ditherPattern(){
 }
 /* 이번 프레임의 광원 — 위치와 색을 모아 화면에 번지게 한다 */
 function collectLights(){
-  const L=[], S2=W._S, ox=cv.width/2, oy=cv.height*0.10;
+  const L=[], S2=W._S, ox=cv.width/2, oy=(W._oy||cv.height*0.10);
   const put=(wx,wy,r,c,a)=>{ const p=proj(wx,wy);
     L.push({x:ox+p.sx*S2, y:oy+(p.sy-tierH(wy)*p.sc)*S2, r:r*p.sc*S2, c, a}); };
   const E=envOf();
