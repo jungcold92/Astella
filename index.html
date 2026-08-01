@@ -33,7 +33,8 @@
 }
 html,body{margin:0;padding:0;height:100%;background:#05040a;color:var(--txt);overflow:hidden;
   font-family:var(--ff-body);overscroll-behavior:none}
-#app{position:fixed;inset:0;display:flex;flex-direction:column}
+#app{position:fixed;inset:0;height:100%;display:flex;flex-direction:column}
+@supports(height:100dvh){ #app{height:100dvh} #ov{height:100dvh} }
 canvas{image-rendering:pixelated;display:block}
 .hide{display:none!important}
 .dim{color:var(--dim)} .gold{color:var(--gold2)}
@@ -207,11 +208,11 @@ input::placeholder{color:#5b5470}
   font-size:10.5px;line-height:1.55;color:#b3aac6;pointer-events:none;text-shadow:0 1px 2px #000}
 
 /* ---- 오버레이 창 ---- */
-#ov{position:absolute;inset:0;background:rgba(3,2,8,.80);z-index:20;display:flex;
-  align-items:center;justify-content:center;
-  padding:calc(10px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right))
-          calc(10px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left))}
-.win{width:100%;max-width:920px;max-height:95vh;display:flex;flex-direction:column;border-radius:2px;
+#ov{position:fixed;inset:0;background:rgba(3,2,8,.86);z-index:20;display:flex;
+  align-items:center;justify-content:center;padding:10px;
+  overscroll-behavior:contain}
+.win{width:100%;max-width:920px;max-height:100%;display:flex;flex-direction:column;border-radius:2px;
+  min-height:0;
   background:
     radial-gradient(ellipse at 50% 0%,rgba(120,96,40,.14),transparent 60%),
     linear-gradient(180deg,#221d2d,#100e18);
@@ -226,7 +227,11 @@ input::placeholder{color:#5b5470}
 .winH h3{margin:0;font-size:19px;letter-spacing:0;flex:1;color:var(--gold2);
   font-family:var(--ff-title);font-weight:400;
   text-shadow:0 1px 0 #000,0 0 10px rgba(201,162,39,.22)}
-.winB{padding:13px;overflow:auto;flex:1}
+.winB{padding:13px;overflow:auto;flex:1 1 auto;min-height:0;-webkit-overflow-scrolling:touch}
+#ovClose{min-width:46px;height:38px;font-size:15px;padding:0 12px;flex:0 0 auto}
+.winF{display:none;flex:0 0 auto;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  border-top:1px solid #3a3020;background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.5))}
+.winF>button{width:100%;padding:13px;font-size:14px}
 .cols{display:flex;gap:11px;flex-wrap:wrap}
 .c1{flex:1;min-width:230px}
 .sect{font-size:14px;color:var(--gold2);letter-spacing:0;margin-bottom:7px;
@@ -341,23 +346,44 @@ a.link{color:#8fc0ff;cursor:pointer;text-decoration:underline;font-size:11px}
   .gauge{height:9px}.gauge.mp{height:7px}.gauge.xp{height:4px}
   .gauge>span{font-size:7.5px;line-height:9px}
   #bossBox{max-width:none}
-  .hudRight{top:auto;bottom:calc(160px + env(safe-area-inset-bottom));
-    right:5px;max-width:52%;gap:3px}
+  /* 와우식 배치 — 위: 내 정보·보스 / 오른쪽 위: 재화·메뉴 / 아래: 조이스틱 + 행동 단축바 */
+  .hudRight{top:calc(4px + env(safe-area-inset-top));bottom:auto;right:5px;max-width:44%;gap:3px}
   .chip{font-size:9.5px;padding:3px 7px}
-  #dpsBox{font-size:9px;max-height:104px;overflow:hidden}
-  #objBox{max-width:150px;font-size:9.5px}
-  .menuBtns{gap:3px}
-  .mb{width:31px;height:31px;font-size:13px}
-  #logBox{width:46%;bottom:150px;max-height:52px;font-size:9.5px}
-  .skills{max-width:62%;gap:3px}
-  .sk{width:38px;height:38px}.sk canvas{width:25px;height:25px}
+  #dpsBox{font-size:8.5px;max-height:88px;overflow:hidden;opacity:.9}
+  #objBox{max-width:148px;font-size:9.5px}
+  .menuBtns{gap:3px;max-width:150px}
+  .mb{width:33px;height:33px;font-size:13px}
+  #logBox{left:6px;width:52%;bottom:calc(158px + env(safe-area-inset-bottom));
+    max-height:46px;font-size:9.5px}
+  /* 행동 단축바 — 아래 오른쪽에 2줄로 딱 떨어지게 */
+  .hudBottom{padding:0 6px calc(8px + env(safe-area-inset-bottom)) 6px;gap:6px;align-items:flex-end}
+  .skills{max-width:none;flex:1;gap:4px;justify-content:flex-end}
+  .sk{width:40px;height:40px}.sk canvas{width:26px;height:26px}
   .sk .kn{font-size:8px}
-  #stick{width:92px;height:92px}
-  #stick .nub{width:38px;height:38px;left:27px;top:27px}
-  #interact{bottom:calc(126px + env(safe-area-inset-bottom));font-size:11px;padding:6px 12px}
-  #toastBox{top:calc(64px + env(safe-area-inset-top))}
+  #stick{width:96px;height:96px;flex:0 0 96px}
+  #stick .nub{width:40px;height:40px;left:28px;top:28px}
+  #interact{bottom:calc(150px + env(safe-area-inset-bottom));font-size:11.5px;padding:7px 14px}
+  #toastBox{top:calc(58px + env(safe-area-inset-top))}
   .toast{font-size:10.5px;padding:5px 9px}
   #storyText{font-size:13.5px;line-height:1.8}
+}
+/* ── 모바일 세로 : 창을 전체화면 시트로 ──
+   예전에는 가운데 떠 있는 창이 화면보다 커져 닫기 버튼이 위로 밀려 나갔다. */
+@media(max-aspect-ratio:3/4){
+  #ov{padding:0;align-items:stretch;justify-content:stretch}
+  .win{max-width:none;max-height:none;height:100%;border-radius:0;border:0;
+    box-shadow:inset 0 0 0 2px #5c4620}
+  .winH{position:sticky;top:0;z-index:2;
+    padding:calc(9px + env(safe-area-inset-top)) 12px 9px 12px}
+  .winH h3{font-size:16px}
+  #ovSub{display:none}
+  #ovClose{min-width:52px;height:44px;font-size:17px}
+  .winB{padding:11px 11px 4px}
+  .winF{display:block}                      /* 아래쪽에도 큰 닫기 버튼 */
+  .cols{gap:9px}.c1{min-width:0;flex:1 1 100%}
+  .sgrid{gap:6px}
+  .li{padding:8px 10px;font-size:11px}
+  .tipbox{height:150px}
 }
 /* 아주 좁은 화면 */
 @media(max-width:400px){
@@ -517,8 +543,9 @@ a.link{color:#8fc0ff;cursor:pointer;text-decoration:underline;font-size:11px}
 <div id="ov" class="hide">
   <div class="win">
     <div class="winH"><h3 id="ovTitle"></h3><span id="ovSub" style="font-size:11px;color:#6b6784"></span>
-      <button id="ovClose">닫기 ✕</button></div>
+      <button id="ovClose" aria-label="닫기">✕</button></div>
     <div class="winB" id="ovBody"></div>
+    <div class="winF"><button id="ovClose2">닫기</button></div>
   </div>
 </div>
 </div>
@@ -2107,15 +2134,28 @@ function drawWeapon(hx,hy,type,ang,glow,face,wc){
   const put=(t,c,w)=>px(hx+dx*t-(w||1)/2,hy+dy*t-(w||1)/2,w||1,w||1,c);
   const MT=wc||'#d0d0e0', MTL=sh(MT,40), MTD=sh(MT,-45), nx=-dy, ny=dx*face;   // 등급 금속색
   const put2=(t,off,c,w)=>px(hx+dx*t+nx*off-(w||1)/2,hy+dy*t+ny*off-(w||1)/2,w||1,w||1,c);
-  if(type==='greatsword'){ for(let t=1;t<L+5;t++){ put2(t,-1,MT,2); put2(t,1,t>L+1?MTL:MTD,2); }
-    for(let t=-2;t<2;t++) put(t,'#5a3a1a',3); put(2,'#8a6a3a',5); put(L+5,MTL,2); return; }
-  if(type==='hammer'){ for(let t=-3;t<L-2;t++) put(t,'#5a3a1a',2);
-    for(let o=-3;o<=3;o++) put2(L-2,o,MT,4); for(let o=-3;o<=3;o++) put2(L-3,o,MTL,2); return; }
-  if(type==='spear'){ for(let t=-6;t<L;t++) put(t,'#6a4a2a',2);
-    for(let t=L-1;t<L+5;t++) put(t,t>L+2?MTL:MT,3); put(L-2,MTD,4); return; }
-  if(type==='dagger'){ for(let t=2;t<8;t++) put(t,t>6?MTL:MT,2); put(1,'#5a3a1a',3); put(8,MTL,1); return; }
-  if(type==='twinblade'){ for(let t=2;t<10;t++){ put2(t,-3,MT,2); put2(t,3,MT,2); }
-    put2(1,-3,'#5a3a1a',3); put2(1,3,'#5a3a1a',3); put2(10,-3,MTL,2); put2(10,3,MTL,2); return; }
+  if(type==='greatsword'){                          // 대검 — 폭 넓고 아주 길다
+    for(let t=1;t<L+6;t++){ put2(t,-1.5,MT,3); put2(t,1.5,t>L+2?MTL:MTD,3); }
+    for(let t=-3;t<2;t++) put(t,'#5a3a1a',3);
+    for(let o=-4;o<=4;o++) put2(2,o,'#8a6a3a',3);
+    put(L+6,'#ffffff',2); return; }
+  if(type==='hammer'){                              // 망치 — 네모난 큰 머리
+    for(let t=-4;t<L-3;t++) put(t,'#5a3a1a',2.4);
+    for(let o=-4;o<=4;o++){ put2(L-3,o,MTD,4); put2(L-4,o,MT,4); }
+    for(let o=-4;o<=4;o++) put2(L-5,o,MTL,2); return; }
+  if(type==='spear'){                               // 창 — 자루가 뒤로도 길다
+    for(let t=-9;t<L;t++) put(t,'#6a4a2a',2);
+    for(let t=L-1;t<L+6;t++) put(t,t>L+3?'#ffffff':MT,2.4);
+    for(let o=-2;o<=2;o++) put2(L-2,o,MTD,2); return; }
+  if(type==='dagger'){                              // 단검 — 짧고 굽었다. 검과 확실히 다르게
+    for(let t=1;t<7;t++){ const off=(t-1)*0.5;      // 살짝 휜 날
+      put2(t,off,t>5?'#ffffff':MT,2); }
+    put2(0,-2.5,MTD,3); put2(0,2.5,MTD,3);          // 넓적한 코등이
+    put(-2,'#5a3a1a',3); put(-4,MTL,3); return; }
+  if(type==='twinblade'){                           // 쌍곡도 — 두 자루가 벌어져 있다
+    for(let t=2;t<10;t++){ put2(t,-4,MT,2); put2(t,4,MT,2); }
+    put2(1,-4,'#5a3a1a',3); put2(1,4,'#5a3a1a',3);
+    put2(10,-5,'#ffffff',2); put2(10,5,'#ffffff',2); return; }
   if(type==='crossbow'){ for(let o=-6;o<=6;o++) put2(3,o,MT,2);
     put2(-6,0,'#5a3a1a',2); for(let t=-6;t<6;t++) put(t,'#6a4a2a',2);
     for(let o=-6;o<=6;o++) put2(2,o,'#d8d0b0',1); return; }
@@ -2136,8 +2176,9 @@ function drawWeapon(hx,hy,type,ang,glow,face,wc){
   if(type==='staff'){ for(let t=-3;t<L;t++) put(t,'#6a4a2a');
     px(hx+dx*L-2,hy+dy*L-2,4,4,glow);
     g.globalAlpha=.35; px(hx+dx*L-4,hy+dy*L-4,8,8,glow); g.globalAlpha=1; }
-  else if(type==='sword'){ for(let t=2;t<L;t++) put(t,t>L-3?MTL:MT,2);
-    put(1,'#8a6a3a',3); }
+  else if(type==='sword'){                          // 한손검 — 중간 길이, 작은 코등이
+    for(let t=2;t<L;t++) put(t,t>L-3?MTL:MT,2);
+    put2(1,-2.5,'#8a6a3a',2); put2(1,2.5,'#8a6a3a',2); put(0,MTD,3); }
   else if(type==='axe'){ for(let t=0;t<L-3;t++) put(t,'#6a4a2a');
     for(let o=-4;o<=1;o++) put2(L-3,o,MT,4); put2(L-3,-4,MTL,3); put(L,MTL,2); }
   else if(type==='mace'){ for(let t=0;t<L-3;t++) put(t,'#6a4a2a');
@@ -2794,13 +2835,16 @@ function drawFace(ctx,race,hair,style,scale,skin,beard){
     drawRaceBody(0,-2,race,sk,hair,0);
   });
 }
-const CLS_ICON={mage:'staff',warrior:'sword',priest:'holy',hunter:'bow',deathknight:'runeblade'};
+const CLS_ICON={mage:'staff',warrior:'sword',priest:'holy',hunter:'bow',deathknight:'runeblade',
+  rogue:'daggers',paladin:'oathhammer'};
 const SPEC_ICON={frost:'frost',fire:'fire',poison:'poison',fury:'fury',prot:'prot',arms:'arms',
   holy:'holy2',shadow:'shadow',disc:'disc',marks:'marks',beast:'beast',trap:'trap',
-  frostdk:'runeblade',blooddk:'blood',unholydk:'plague'};
+  frostdk:'runeblade',blooddk:'blood',unholydk:'plague',
+  assassin:'venom',subtle:'cloak',retri:'judge',guard:'aegis'};
 function drawEmblem(ctx,kind,color,scale,noBg){
   withCtx(ctx,scale,()=>{ if(!noBg) px(0,0,16,16,'#12121e');
     const C=color,L=sh(color,55),D=sh(color,-40);
+    if(!kind) kind='m4';
     switch(kind){
      case 'staff': px(7,2,2,12,'#6a4a2a'); px(6,1,4,3,C); px(7,2,2,1,L); break;
      case 'sword': px(7,2,2,10,'#d0d0e0'); px(7,2,1,10,'#f4f4ff'); px(4,12,8,2,'#8a6a3a'); px(7,14,2,2,'#5a4a2a'); break;
@@ -2820,6 +2864,35 @@ function drawEmblem(ctx,kind,color,scale,noBg){
      case 'trap':  for(let a=0;a<6.28;a+=.5) px(8+Math.cos(a)*5,8+Math.sin(a)*5,2,2,C);
                    for(let i=0;i<6;i++) px(4+i*1.6,4,1,2,L); break;
      case 'holy2': for(let a=0;a<6.28;a+=.35) px(8+Math.cos(a)*4,8+Math.sin(a)*4,2,2,C); px(6,6,4,4,L); break;
+     /* 그림자꾼 — 엇갈린 두 단검 */
+     case 'daggers':
+       for(let i=0;i<8;i++){ px(3+i,2+i,2,2,i>5?L:'#c8c4d4'); px(13-i,2+i,2,2,i>5?L:'#c8c4d4'); }
+       px(2,10,4,2,'#5a4a3a'); px(10,10,4,2,'#5a4a3a');
+       px(3,12,2,3,D); px(11,12,2,3,D); break;
+     case 'venom':                                        // 암살 — 독이 떨어지는 단검
+       px(7,1,2,9,'#c8c4d4'); px(7,1,1,9,'#f0f0ff');
+       px(4,10,8,2,'#4a5a3a'); px(7,12,2,3,'#3a4a2a');
+       for(let i=0;i<4;i++) px(3+i*3,13-((i%2)*2),2,2,C); break;
+     case 'cloak':                                        // 잠행 — 펼친 망토와 눈
+       px(3,3,10,10,D); px(4,4,8,8,C);
+       px(1,5,3,7,D); px(12,5,3,7,D);
+       px(5,7,2,2,'#0e0c16'); px(9,7,2,2,'#0e0c16');
+       px(5,7,1,1,L); px(9,7,1,1,L); break;
+     /* 서약기사 — 십자 새긴 전쟁망치 */
+     case 'oathhammer':
+       px(7,6,2,9,'#6a4a2a'); px(3,2,10,5,'#b0aabc'); px(4,3,8,3,'#d8d4e0');
+       px(7,3,2,3,C); px(5,4,6,1,C);
+       px(6,14,4,2,D); break;
+     case 'judge':                                        // 응징 — 내리꽂히는 심판의 빛
+       px(7,0,2,10,L); px(6,1,4,2,C);
+       for(let i=0;i<5;i++) px(8-i,10+((i%2)?1:0),1,2,C);
+       for(let i=0;i<5;i++) px(8+i,10+((i%2)?1:0),1,2,C);
+       px(4,13,8,2,C); px(6,15,4,1,L); break;
+     case 'aegis':                                        // 수호 — 방패와 빛의 고리
+       for(let r2=0;r2<11;r2++){ const w=12-Math.max(0,r2-5)*2;
+         px(8-w/2,3+r2,w,1,r2<2?L:C); }
+       px(7,5,2,7,D); px(5,7,6,2,D);
+       for(let a=0;a<6.28;a+=.5) px(8+Math.cos(a)*7,8+Math.sin(a)*7,1,1,L); break;
      case 'm1': px(7,2,2,12,C); px(4,5,8,2,L); px(6,11,4,2,L); break;
      case 'm2': px(3,7,10,2,C); px(3,4,2,8,L); px(11,4,2,8,L); break;
      case 'm3': for(let i=0;i<4;i++){px(4+i*2,4+i,2,2,C);px(11-i*2,4+i,2,2,C);} px(7,11,2,3,L); break;
@@ -2975,24 +3048,88 @@ const ICON_ART={
  ],
 };
 /* 무기 아이콘 — 무기 종류마다 완전히 다른 실루엣 */
+/* 무기 아이콘 — 실루엣만 봐도 어느 직업 것인지 알 수 있게.
+   날 폭·자루 길이·코등이 모양·자루 끝을 전부 다르게 잡았다.
+   c = 등급색, M = 음영, L = 하이라이트 */
 const WICON={
- greatsword:(c,M,L)=>{ px(6,0,4,10,c); px(6,0,2,10,L); px(3,10,10,2,M); px(7,12,2,4,'#6a4a2a'); px(6,15,4,1,M); },
- sword     :(c,M,L)=>{ px(7,2,2,9,c); px(7,2,1,9,L); px(4,11,8,2,M); px(7,13,2,3,'#6a4a2a'); },
- axe       :(c,M,L)=>{ px(7,2,2,13,'#6a4a2a'); px(2,2,6,7,c); px(2,2,6,2,L); px(8,3,4,5,M); px(1,4,2,4,M); },
- hammer    :(c,M,L)=>{ px(7,4,2,11,'#6a4a2a'); px(2,1,12,6,M); px(3,2,10,4,c); px(3,2,10,1,L); },
- spear     :(c,M,L)=>{ px(7,4,2,12,'#6a4a2a'); px(6,0,4,5,c); px(6,0,2,5,L); px(5,4,6,2,M); },
- shield    :(c,M,L)=>{ px(3,2,10,7,c); px(4,9,8,3,c); px(6,12,4,2,c); px(3,2,10,1,L); px(7,4,2,7,M); px(5,5,1,4,M); px(10,5,1,4,M); },
- staff     :(c,M,L)=>{ px(7,5,2,11,'#6a4a2a'); px(5,1,6,5,c); px(6,2,4,3,L); px(7,3,2,1,'#fff'); },
- tome      :(c,M,L)=>{ px(2,3,12,10,M); px(3,4,10,8,c); px(8,3,1,10,M); px(4,6,4,1,L); px(9,6,4,1,L); px(4,9,4,1,L); px(2,12,12,2,L); },
- orb       :(c,M,L)=>{ for(let a=0;a<6.28;a+=.18) px(8+Math.cos(a)*5,7+Math.sin(a)*5,2,2,c); px(6,5,3,3,L); px(4,12,8,3,M); px(5,11,6,1,L); },
- scepter   :(c,M,L)=>{ px(7,6,2,10,M); px(4,1,8,5,c); px(5,2,6,3,L); px(7,3,2,1,'#fff'); px(6,6,4,1,L); },
- bow       :(c,M,L)=>{ for(let i=0;i<13;i++){ const a=-1.1+i*0.17; px(5+Math.cos(a)*6,8+Math.sin(a)*7,2,2,c); } for(let i=0;i<14;i++) px(9,1+i,1,1,L); },
- dagger    :(c,M,L)=>{ px(7,3,2,7,c); px(7,3,1,7,L); px(5,10,6,2,M); px(7,12,2,3,'#6a4a2a'); px(6,14,4,1,M); },
- crossbow  :(c,M,L)=>{ px(2,5,12,2,c); px(1,3,2,6,M); px(13,3,2,6,M); px(7,4,2,10,'#6a4a2a'); px(6,6,4,1,L); },
- twinblade :(c,M,L)=>{ px(4,1,2,9,c); px(10,1,2,9,c); px(4,1,1,9,L); px(10,1,1,9,L); px(2,10,5,2,M); px(9,10,5,2,M); px(4,12,2,3,'#6a4a2a'); px(10,12,2,3,'#6a4a2a'); },
- runeblade :(c,M,L)=>{ px(7,1,2,11,'#b8d8e8'); px(7,1,1,11,'#eaffff'); px(7,3,2,1,c); px(7,6,2,1,c); px(7,9,2,1,c); px(4,12,8,2,'#2a2a38'); px(7,14,2,2,'#4a4a5c'); },
- runeaxe   :(c,M,L)=>{ px(7,3,2,12,'#2a2a38'); px(2,2,6,7,'#8a3a48'); px(2,2,6,2,c); px(8,3,4,5,'#2a2a38'); px(3,4,1,4,c); },
- frostblade:(c,M,L)=>{ px(7,0,2,12,'#d8f4ff'); px(7,0,1,12,'#fff'); px(6,2,1,2,'#7fd8ff'); px(9,5,1,2,'#7fd8ff'); px(4,12,8,2,'#3a5a7a'); px(7,14,2,2,'#2a3a52'); px(2,4,1,1,'#9fe8ff'); px(13,7,1,1,'#9fe8ff'); },
+ /* ── 전사 · 서약기사 (힘) : 굵고 무겁다 ── */
+ greatsword:(c,M,L)=>{                       // 대검 — 폭 넓은 양날, 긴 십자 코등이
+   px(6,0,4,11,c); px(6,0,2,11,L); px(7,0,2,1,'#ffffff');
+   px(2,11,12,2,M); px(2,11,12,1,L);         // 넓은 코등이
+   px(7,13,2,2,'#6a4a2a'); px(6,15,4,1,M); },
+ sword:(c,M,L)=>{                            // 한손검 — 가늘고 짧다
+   px(7,3,2,8,c); px(7,3,1,8,L);
+   px(5,11,6,2,M); px(7,13,2,2,'#6a4a2a'); px(6,15,4,1,M); },
+ axe:(c,M,L)=>{                              // 도끼 — 한쪽으로 크게 부푼 날
+   px(7,3,2,12,'#6a4a2a');
+   px(1,2,7,4,c); px(1,6,6,3,c); px(2,9,4,2,M);
+   px(1,2,7,1,L); px(8,4,3,4,M);
+   px(6,15,4,1,M); },
+ hammer:(c,M,L)=>{                           // 망치 — 네모난 머리
+   px(7,6,2,10,'#6a4a2a');
+   px(2,1,12,6,M); px(3,2,10,4,c); px(3,2,10,1,L);
+   px(1,2,2,4,M); px(13,2,2,4,M); },
+ spear:(c,M,L)=>{                            // 창 — 긴 자루, 좁고 뾰족한 촉
+   px(7,5,2,11,'#6a4a2a');
+   px(7,0,2,6,c); px(7,0,1,6,L); px(7,0,2,1,'#ffffff');
+   px(5,5,6,2,M); px(6,7,4,1,M); },
+ shield:(c,M,L)=>{                           // 방패 — 아래로 뾰족한 연꼴
+   px(2,1,12,8,c); px(3,9,10,3,c); px(5,12,6,2,c); px(7,14,2,2,c);
+   px(2,1,12,1,L); px(7,3,2,9,M); px(4,5,2,5,M); px(10,5,2,5,M); },
+ /* ── 마법사 · 사제 (지능) : 자루 끝에 빛이 맺힌다 ── */
+ staff:(c,M,L)=>{                            // 지팡이 — 자루가 아주 길다
+   px(7,6,2,10,'#6a4a2a'); px(7,6,1,10,'#8a6a3a');
+   px(5,1,6,5,c); px(6,2,4,3,L); px(7,3,2,1,'#ffffff');
+   px(4,3,1,2,c); px(11,3,1,2,c); },
+ scepter:(c,M,L)=>{                          // 홀 — 짧은 자루, 넓은 머리
+   px(7,7,2,9,M); px(7,7,1,9,L);
+   px(3,1,10,5,c); px(4,2,8,3,L); px(7,3,2,1,'#ffffff');
+   px(5,6,6,1,L); px(6,15,4,1,M); },
+ orb:(c,M,L)=>{                              // 수정구 — 손잡이 위 커다란 구
+   for(let a=0;a<6.28;a+=.16) px(8+Math.cos(a)*5,6+Math.sin(a)*5,2,2,c);
+   px(5,4,3,3,L); px(6,3,1,1,'#ffffff');
+   px(6,11,4,2,M); px(4,13,8,3,M); px(5,13,6,1,L); },
+ tome:(c,M,L)=>{                             // 마도서 — 펼친 책
+   px(1,3,14,10,M); px(2,4,6,8,c); px(9,4,6,8,c);
+   px(8,3,1,10,M);
+   px(3,6,4,1,L); px(10,6,4,1,L); px(3,9,4,1,L); px(10,9,4,1,L);
+   px(1,13,14,2,L); },
+ /* ── 사냥꾼 · 그림자꾼 (민첩) : 가볍고 날카롭다 ── */
+ bow:(c,M,L)=>{                              // 장궁 — 큰 곡선
+   for(let i=0;i<15;i++){ const a=-1.25+i*0.178;
+     px(4+Math.cos(a)*7,8+Math.sin(a)*7,2,2,c); }
+   for(let i=0;i<15;i++) px(10,1+i,1,1,L);
+   px(9,7,4,2,M); },
+ crossbow:(c,M,L)=>{                         // 석궁 — 가로로 넓은 T자
+   px(1,4,14,3,c); px(1,4,14,1,L);
+   px(0,2,2,7,M); px(14,2,2,7,M);
+   px(7,3,2,12,'#6a4a2a'); px(6,13,4,3,M);
+   for(let i=0;i<11;i++) px(2+i,7,1,1,'#d8d0b0'); },
+ dagger:(c,M,L)=>{                           // 단검 — 짧고 아래로 치우침
+   px(7,4,2,6,c); px(7,4,1,6,L); px(7,4,2,1,'#ffffff');
+   px(5,10,6,1,M); px(7,11,2,4,'#5a4a3a'); px(6,15,4,1,M); },
+ twinblade:(c,M,L)=>{                        // 쌍곡도 — 안쪽으로 휜 두 날
+   for(let i=0;i<8;i++){ px(4-((i>4)?1:0),1+i,2,2,c); px(11+((i>4)?1:0),1+i,2,2,c); }
+   px(4,1,1,7,L); px(12,1,1,7,L);
+   px(2,9,5,2,M); px(9,9,5,2,M);
+   px(4,11,2,4,'#5a4a3a'); px(10,11,2,4,'#5a4a3a'); },
+ /* ── 사신 : 룬이 박힌 검은 금속 ── */
+ runeblade:(c,M,L)=>{
+   px(7,0,2,12,'#b8d8e8'); px(7,0,1,12,'#eaffff');
+   px(7,2,2,1,c); px(7,5,2,1,c); px(7,8,2,1,c);
+   px(3,12,10,2,'#2a2a38'); px(3,12,10,1,'#4a4a5c');
+   px(7,14,2,2,'#4a4a5c'); },
+ runeaxe:(c,M,L)=>{
+   px(7,3,2,12,'#2a2a38');
+   px(1,2,7,7,'#8a3a48'); px(1,2,7,1,c); px(2,4,1,4,c);
+   px(8,3,4,5,'#2a2a38'); px(6,15,4,1,'#4a4a5c'); },
+ frostblade:(c,M,L)=>{                       // 갈망 — 톱니 같은 얼음 날, 갈고리 코등이
+   px(6,1,4,10,'#d8f4ff'); px(6,1,2,10,'#ffffff');
+   px(7,0,2,2,'#ffffff');
+   for(let i=0;i<4;i++){ px(5,2+i*2,1,2,'#9fe8ff'); px(10,3+i*2,1,2,'#9fe8ff'); }
+   px(4,11,8,2,'#243a52'); px(2,10,2,3,'#3a5a7a'); px(12,10,2,3,'#3a5a7a');
+   px(7,13,2,2,'#1c2a3c'); px(6,15,4,1,'#3a5a7a');
+   px(1,5,1,1,'#9fe8ff'); px(14,8,1,1,'#9fe8ff'); },
 };
 function drawItemIcon(ctx,it,scale){
   const rc=RARITY[it.r].c, M=sh(rc,-35), L=sh(rc,45);
@@ -6171,7 +6308,12 @@ function openWin(kind){
   ({inv:winInv,skill:winSkill,shop:winShop,quest:winQuest,ach:winAch,raid:winRaid,codex:winCodex,
     sup:winSupply,mog:winMog,menu:winMenu}[kind]||winMenu)();
 }
-$('#ovClose').onclick=()=>{ $('#ov').classList.add('hide'); if(W){ refreshHud(); renderSkillBar(); } };
+function closeWin(){ $('#ov').classList.add('hide'); if(W){ refreshHud(); renderSkillBar(); } }
+$('#ovClose').onclick=closeWin;
+$('#ovClose2').onclick=closeWin;
+/* 창 바깥(어두운 배경)을 눌러도 닫힌다 — 모바일에서 확실한 탈출구 */
+$('#ov').addEventListener('click',e=>{ if(e.target&&e.target.id==='ov') closeWin(); });
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#ov').classList.contains('hide')) closeWin(); });
 $$('.mb[data-win]').forEach(b=>b.onclick=()=>openWin(b.dataset.win));
 
 /* ---- 장비/가방 ---- */
